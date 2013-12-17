@@ -1,0 +1,4 @@
+angular-resourceful
+===================
+
+Angular Resourceful
