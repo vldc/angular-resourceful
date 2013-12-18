@@ -23,16 +23,12 @@ describe('resourceful module', function () {
     beforeEach(module('resourceful'));
     beforeEach(module(function ($provide) {
         $provide.factory('$resource', function () {
-            return jasmine.createSpy('resource').andCallFake(function () {
-                return {
-                    haveBeenCalledWith: arguments
-                };
-            });
+            return jasmine.createSpy('resource');
         });
     }));
 
     //- http://stackoverflow.com/a/16487071
-    beforeEach(function() {
+    beforeEach(function () {
         this.addMatchers({
             toEqualData: function(expect) {
                 return angular.equals(expect, this.actual);
@@ -55,6 +51,7 @@ describe('resourceful module', function () {
         })
     });
 
+
     describe('$resourceful', function () {
         var _$resourceful;
         var _setOnce;
@@ -69,33 +66,43 @@ describe('resourceful module', function () {
             _run = $resourceful.run;
         }));
 
+        afterEach(inject(function ($resource) {
+            $resource.reset();
+        }));
+
         itShouldBe.defined.bind(this, _$resourceful);
         itShouldBe.aFunction.bind(this, _$resourceful);
 
+        describe('when calling $resource', function () {
+            testValues.forEach(function (testValue) {
+                it('should pass the same first parameter (' + testValue + ')', inject(function ($resource) {
+                    _$resourceful(testValue);
+                    expect($resource).toHaveBeenCalledWith(testValue, undefined, any.obj);
+                }));
 
-        testValues.forEach(function (testValue) {
-            it('should call $resource with the same first parameter (' + testValue + ')', inject(function ($resource) {
-                expect(_$resourceful(testValue).haveBeenCalledWith[0]).toEqual($resource(testValue).haveBeenCalledWith[0]);
+                it('should pass the same second parameter (' + testValue + ')', inject(function ($resource) {
+                    _$resourceful('', testValue);
+                    expect($resource).toHaveBeenCalledWith('', testValue, any.obj);
+                }));
+            });
+
+            it('should pass the object as a third parameter', inject(function ($resource) {
+                _$resourceful();
+                expect($resource).toHaveBeenCalledWith(undefined, undefined, any.obj);
             }));
 
-            it('should call $resource with the same second parameter (' + testValue + ')', inject(function ($resource) {
-                expect(_$resourceful('', testValue).haveBeenCalledWith[1]).toEqual($resource('', testValue).haveBeenCalledWith[1]);
+            it('should pass additional methods set in a third parameter', inject(function ($resource) {
+                var additionalMethods = {
+                    anAdditionalMethod: {
+                        method: 'GET',
+                        isArray: false
+                    }
+                };
+
+                _$resourceful('', {}, additionalMethods);
+                expect($resource.mostRecentCall.args[2].anAdditionalMethod).toEqual(additionalMethods.anAdditionalMethod);
             }));
         });
-
-        it('should call $resource with a an object as a third parameter', inject(function ($resource) {
-            _$resourceful();
-            expect($resource).toHaveBeenCalledWith(undefined, undefined, any.obj);
-        }));
-
-        it('should call $resource with additional methods set in a third parameter', inject(function ($resource) {
-            var result = {
-                resourceful: _$resourceful('', '', {additional: {method: 'GET'}}).haveBeenCalledWith[2].additional,
-                resource: $resource('', '', {additional: {method: 'GET'}}).haveBeenCalledWith[2].additional
-            };
-
-            expect(result.resourceful).toEqual(result.resource);
-        }));
 
         describe('setOnce', function () {
             itShouldBe.defined.bind(this, _setOnce);
@@ -110,6 +117,7 @@ describe('resourceful module', function () {
                 expect(_$resourceful.setOnce()).toEqual(_$resourceful);
             })
         });
+
 
         describe('dataKey', function () {
             var wrong = [true, false, null, undefined, [], {}, ['something'], {foo: 'bar'}, 123545, Infinity, -Infinity, -3.5, ''];
@@ -134,11 +142,12 @@ describe('resourceful module', function () {
 
         });
 
+
         describe('run', function () {
             itShouldBe.defined.bind(this, _run);
             itShouldBe.aFunction.bind(this, _run);
 
-            it('should return the same thing as $resourceful', function () {
+            it('should return the same result as $resourceful', function () {
                 expect(_$resourceful.run()).toEqualData(_$resourceful());
             })
         });
