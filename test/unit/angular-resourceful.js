@@ -17,6 +17,11 @@ describe('resourceful module', function () {
             return it('should be a function', function () {
                 expect(item).toEqual(any.fn);
             })
+        },
+        anObject: function (item) {
+            return ('it should be an object', function () {
+                expect(item).toEqual(any.obj);
+            })
         }
     };
 
@@ -51,9 +56,9 @@ describe('resourceful module', function () {
         })
     });
 
-
     describe('$resourceful', function () {
         var _$resourceful;
+        var _defaultActions;
         var _setOnce;
         var _dataKey;
         var _run;
@@ -61,6 +66,7 @@ describe('resourceful module', function () {
 
         beforeEach(inject(function ($resourceful) {
             _$resourceful = $resourceful;
+            _defaultActions = $resourceful.defaultActions;
             _setOnce = $resourceful.setOnce;
             _dataKey = $resourceful.dataKey;
             _run = $resourceful.run;
@@ -104,6 +110,12 @@ describe('resourceful module', function () {
             }));
         });
 
+
+        describe('defaultActions', function () {
+            itShouldBe.defined.bind(this, _defaultActions);
+            itShouldBe.aFunction.bind(this, _defaultActions);
+        });
+
         describe('setOnce', function () {
             itShouldBe.defined.bind(this, _setOnce);
             itShouldBe.aFunction.bind(this, _setOnce);
@@ -120,13 +132,14 @@ describe('resourceful module', function () {
 
 
         describe('dataKey', function () {
+
             var wrong = [true, false, null, undefined, [], {}, ['something'], {foo: 'bar'}, 123545, Infinity, -Infinity, -3.5, ''];
             var right = ['a string', 'ąśźćśół', '123', 'true', 'false', 'null', '0', 'Infinity', '[]', '{[]}'];
             itShouldBe.defined.bind(this, _dataKey);
             itShouldBe.aFunction.bind(this, _dataKey);
 
             right.forEach(function (rightVal) {
-                it('should set _dataKey property with argument: ' + rightVal, function () {
+                it('should set $resourcefulDataKey value with argument: ' + rightVal, function () {
                     _$resourceful.dataKey(rightVal);
                     expect(_$resourceful._dataKey).toEqual(rightVal);
                 });
@@ -149,7 +162,7 @@ describe('resourceful module', function () {
 
             it('should return the same result as $resourceful', function () {
                 expect(_$resourceful.run()).toEqualData(_$resourceful());
-            })
+            });
         });
 
     });
