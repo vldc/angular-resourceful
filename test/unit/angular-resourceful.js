@@ -7,24 +7,6 @@ describe('resourceful module', function () {
         str: jasmine.any(String)
     };
 
-    var itShouldBe = {
-        defined: function (item) {
-            return it('should be defined', function () {
-                expect(item).toBeDefined();
-            });
-        },
-        aFunction: function (item) {
-            return it('should be a function', function () {
-                expect(item).toEqual(any.fn);
-            })
-        },
-        anObject: function (item) {
-            return ('it should be an object', function () {
-                expect(item).toEqual(any.obj);
-            })
-        }
-    };
-
     beforeEach(module('resourceful'));
     beforeEach(module(function ($provide) {
         $provide.factory('$resource', function () {
@@ -35,26 +17,50 @@ describe('resourceful module', function () {
     //- http://stackoverflow.com/a/16487071
     beforeEach(function () {
         this.addMatchers({
-            toEqualData: function(expect) {
+            toEqualData: function (expect) {
                 return angular.equals(expect, this.actual);
             }
         });
     });
 
 
-    describe('$RESOURCEFUL_DATA_KEY constant', function () {
-        var _$RESOURCEFUL_DATA_KEY;
+    describe('$resourcefulDataKey value', function () {
+        var _$resourcefulDataKey;
 
-        beforeEach(inject(function ($RESOURCEFUL_DATA_KEY) {
-            _$RESOURCEFUL_DATA_KEY = $RESOURCEFUL_DATA_KEY;
+        beforeEach(inject(function ($resourcefulDataKey) {
+            _$resourcefulDataKey = $resourcefulDataKey;
         }));
 
-        itShouldBe.defined.bind(this, _$RESOURCEFUL_DATA_KEY);
+        it('should be defined', function () {
+            expect(_$resourcefulDataKey).toBeDefined();
+        });
 
-        it('should be a string', function () {
-            expect(_$RESOURCEFUL_DATA_KEY).toEqual(any.str);
-        })
+        it('should be an object', function () {
+            expect(_$resourcefulDataKey).toEqual(any.obj);
+        });
     });
+
+    describe('$resourcefulDefaultActions', function () {
+        var _$resourcefulDefaultActions;
+
+        beforeEach(inject(function ($resourcefulDefaultActions) {
+            _$resourcefulDefaultActions = $resourcefulDefaultActions;
+        }));
+
+        it('should be defined', function () {
+            expect(_$resourcefulDefaultActions).toBeDefined();
+        });
+
+        it('should be a function', function () {
+            expect(_$resourcefulDefaultActions).toEqual(any.fn);
+        });
+
+        it('should return an object', function () {
+            expect(_$resourcefulDefaultActions()).toEqual(any.obj);
+        });
+
+        // more to come
+    })
 
     describe('$resourceful', function () {
         var _$resourceful;
@@ -76,8 +82,13 @@ describe('resourceful module', function () {
             $resource.reset();
         }));
 
-        itShouldBe.defined.bind(this, _$resourceful);
-        itShouldBe.aFunction.bind(this, _$resourceful);
+        it('should be defined', function () {
+            expect(_$resourceful).toBeDefined();
+        });
+
+        it('should be a function', function () {
+            expect(_$resourceful).toEqual(any.fn);
+        });
 
         describe('when calling $resource', function () {
             testValues.forEach(function (testValue) {
@@ -110,39 +121,44 @@ describe('resourceful module', function () {
             }));
         });
 
-
-        describe('defaultActions', function () {
-            itShouldBe.defined.bind(this, _defaultActions);
-            itShouldBe.aFunction.bind(this, _defaultActions);
-        });
-
         describe('setOnce', function () {
-            itShouldBe.defined.bind(this, _setOnce);
-            itShouldBe.aFunction.bind(this, _setOnce);
-
-            it('should set _once property to true', function () {
-                _$resourceful.setOnce();
-                expect(_$resourceful._once).toBe(true);
+            it('should be defined', function () {
+                expect(_setOnce).toBeDefined();
             });
+
+            it('should be a function', function () {
+                expect(_setOnce).toEqual(any.fn);
+            });
+
+            it('should set $resourcefulDataKey.once property to true', inject(function ($resourcefulDataKey) {
+                $resourcefulDataKey.once = null;
+                _$resourceful.setOnce();
+                expect($resourcefulDataKey.once).toBe(true);
+            }));
 
             it('should return $resourceful', function () {
                 expect(_$resourceful.setOnce()).toEqual(_$resourceful);
-            })
+            });
         });
 
 
         describe('dataKey', function () {
-
             var wrong = [true, false, null, undefined, [], {}, ['something'], {foo: 'bar'}, 123545, Infinity, -Infinity, -3.5, ''];
             var right = ['a string', 'ąśźćśół', '123', 'true', 'false', 'null', '0', 'Infinity', '[]', '{[]}'];
-            itShouldBe.defined.bind(this, _dataKey);
-            itShouldBe.aFunction.bind(this, _dataKey);
+
+            it('should be defined', function () {
+                expect(_dataKey).toBeDefined();
+            });
+
+            it('should be a function', function () {
+                expect(_dataKey).toEqual(any.fn);
+            });
 
             right.forEach(function (rightVal) {
-                it('should set $resourcefulDataKey value with argument: ' + rightVal, function () {
+                it('should set $resourcefulDataKey value with argument: ' + rightVal, inject(function ($resourcefulDataKey) {
                     _$resourceful.dataKey(rightVal);
-                    expect(_$resourceful._dataKey).toEqual(rightVal);
-                });
+                    expect($resourcefulDataKey.val).toEqual(rightVal);
+                }));
             })
 
             wrong.forEach(function (wrongVal) {
@@ -157,8 +173,13 @@ describe('resourceful module', function () {
 
 
         describe('run', function () {
-            itShouldBe.defined.bind(this, _run);
-            itShouldBe.aFunction.bind(this, _run);
+            it('should be defined', function () {
+                expect(_run).toBeDefined();
+            });
+
+            it('should be a function', function () {
+                expect(_run).toEqual(any.fn);
+            });
 
             it('should return the same result as $resourceful', function () {
                 expect(_$resourceful.run()).toEqualData(_$resourceful());
