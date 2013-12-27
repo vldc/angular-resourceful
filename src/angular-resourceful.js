@@ -2,51 +2,46 @@ angular.module('resourceful', ['ngResource'])
 
     .value('$resourcefulDataKey', {
         def: 'wrap',
-        val: false,
+        temp: false,
+        val: '',
         once: true
     })
 
-    .factory('$resourcefulDefaultActions', [
+    .service('$resourcefulDefaultActions', [
         '$resourcefulDataKey',
         function ($resourcefulDataKey) {
+            return {
+                put: {
+                    method: 'PUT'
+                },
 
-            return function () {
-                var dataKey = $resourcefulDataKey.val || $resourcefulDataKey.def;
-                $resourcefulDataKey.once && ($resourcefulDataKey.val = $resourcefulDataKey.once = false);
+                putArray: {
+                    method: 'PUT',
+                    isArray: true
+                },
 
-                return {
-                    put: {
-                        method: 'PUT'
-                    },
-
-                    putArray: {
-                        method: 'PUT',
-                        isArray: true
-                    },
-
-                    fetch: {
-                        method: 'GET',
-                        transformResponse: function (data) {
-                            var transformed = {};
-                            transformed[dataKey] = !!data ? angular.fromJson(data) : [];
-                            return transformed;
-                        }
-                    },
-
-                    update: {
-                        method: 'PUT',
-                        isArray: true,
-                        transformRequest: function (data) {
-                            return angular.toJson(data[dataKey]);
-                        },
-                        transformResponse: angular.noop
-                    },
-
-                    saveArray: {
-                        method: 'POST',
-                        isArray: true
+                fetch: {
+                    method: 'GET',
+                    transformResponse: function (data) {
+                        var transformed = {};
+                        transformed[$resourcefulDataKey.val] = !!data ? angular.fromJson(data) : [];
+                        return transformed;
                     }
-                };
+                },
+
+                update: {
+                    method: 'PUT',
+                    isArray: true,
+                    transformRequest: function (data) {
+                        return angular.toJson(data[$resourcefulDataKey.val]);
+                    },
+                    transformResponse: angular.noop
+                },
+
+                saveArray: {
+                    method: 'POST',
+                    isArray: true
+                }
             };
         }
     ])
@@ -59,8 +54,10 @@ angular.module('resourceful', ['ngResource'])
         function ($resource, $log, $resourcefulDefaultActions, $resourcefulDataKey) {
             var $resourceful = function (url, paramDefaults, actions) {
                 actions = actions || {};
-
-                var finalActions = angular.extend($resourcefulDefaultActions(), actions);
+                var defaultActions = angular.copy($resourcefulDefaultActions)
+                var finalActions = angular.extend(defaultActions, actions);
+                $resourcefulDataKey.val = $resourcefulDataKey.temp || $resourcefulDataKey.def;
+                $resourcefulDataKey.once && ($resourcefulDataKey.temp = $resourcefulDataKey.once = false);
 
                 return $resource(url, paramDefaults, finalActions);
             };
@@ -74,7 +71,7 @@ angular.module('resourceful', ['ngResource'])
 
                 dataKey: function (keyName) {
                     if (angular.isString(keyName) && keyName.length) {
-                        $resourcefulDataKey.val = keyName;
+                        $resourcefulDataKey.temp = keyName;
                     } else {
                         $log.warn('angular-resource: wrong keyName provided for dataKey')
                     }

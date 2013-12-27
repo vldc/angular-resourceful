@@ -51,20 +51,13 @@ describe('resourceful module', function () {
             expect(_$resourcefulDefaultActions).toBeDefined();
         });
 
-        it('should be a function', function () {
-            expect(_$resourcefulDefaultActions).toEqual(any.fn);
+        it('should be an object', function () {
+            expect(_$resourcefulDefaultActions).toEqual(any.obj);
         });
-
-        it('should return an object', function () {
-            expect(_$resourcefulDefaultActions()).toEqual(any.obj);
-        });
-
-        // more to come
     })
 
     describe('$resourceful', function () {
         var _$resourceful;
-        var _defaultActions;
         var _setOnce;
         var _dataKey;
         var _run;
@@ -72,7 +65,6 @@ describe('resourceful module', function () {
 
         beforeEach(inject(function ($resourceful) {
             _$resourceful = $resourceful;
-            _defaultActions = $resourceful.defaultActions;
             _setOnce = $resourceful.setOnce;
             _dataKey = $resourceful.dataKey;
             _run = $resourceful.run;
@@ -119,6 +111,30 @@ describe('resourceful module', function () {
                 _$resourceful('', {}, additionalMethods);
                 expect($resource.mostRecentCall.args[2].anAdditionalMethod).toEqual(additionalMethods.anAdditionalMethod);
             }));
+
+            it('should set set .temp and .once properties to false when .once is set', inject(function ($resourcefulDataKey) {
+                $resourcefulDataKey.once = true;
+                $resourcefulDataKey.temp = 'test';
+                _$resourceful();
+
+                expect($resourcefulDataKey.once).toBe(false);
+                expect($resourcefulDataKey.temp).toBe(false);
+            }));
+
+            it('should overwrite a method which was set before', inject(function ($resource, $resourcefulDefaultActions) {
+                $resourcefulDefaultActions.testMethod = {
+                    method: 'GET'
+                };
+
+                _$resourceful('', {}, {
+                    testMethod: {
+                        method: 'PUT'
+                    }
+                });
+
+                expect($resource.mostRecentCall.args[2].testMethod).not.toEqual($resourcefulDefaultActions.testMethod);
+                expect($resource.mostRecentCall.args[2].testMethod).toEqual({method: 'PUT'});
+            }));
         });
 
         describe('setOnce', function () {
@@ -157,7 +173,7 @@ describe('resourceful module', function () {
             right.forEach(function (rightVal) {
                 it('should set $resourcefulDataKey value with argument: ' + rightVal, inject(function ($resourcefulDataKey) {
                     _$resourceful.dataKey(rightVal);
-                    expect($resourcefulDataKey.val).toEqual(rightVal);
+                    expect($resourcefulDataKey.temp).toEqual(rightVal);
                 }));
             })
 
