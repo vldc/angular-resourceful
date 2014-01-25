@@ -81,6 +81,19 @@ module.exports = function (grunt) {
                 'src/**/*'
             ],
             tasks: ['default']
+        },
+        karma: {
+            'unit': {
+                configFile: 'karma-unit.conf.js',
+                singleRun: true,
+                autoWatch: false
+            },
+            'unit-travis': {
+                configFile: 'karma-unit.conf.js',
+                singleRun: true,
+                autoWatch: false,
+                browsers: ['PhantomJS', 'Firefox']
+            }
         }
     });
 
@@ -88,8 +101,19 @@ module.exports = function (grunt) {
     grunt.loadNpmTasks('grunt-contrib-jshint');
     grunt.loadNpmTasks('grunt-contrib-concat');
     grunt.loadNpmTasks('grunt-contrib-watch');
+    grunt.loadNpmTasks('grunt-karma');
 
-    grunt.registerTask('default', ['jshint:beforeConcat', 'concat', 'jshint:afterConcat', 'uglify']);
+    grunt.registerTask('test', [
+        'karma:unit'
+    ]);
+
+    grunt.registerTask('travis-test', [
+        'jshint:beforeconcat',
+        'jshint:afterconcat',
+        'karma:unit-travis'
+    ]);
+
+    grunt.registerTask('default', ['jshint:beforeConcat', 'concat', 'jshint:afterConcat', 'uglify', 'test']);
     grunt.registerTask('livereload', ['default', 'watch']);
 
 };
