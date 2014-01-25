@@ -10,7 +10,6 @@ before_install:
 
 before_script:
   - npm install -g grunt-cli
-  - npm install -g grunt-karma
   - npm install -g bower
   - bower install
   - rm -rf node_modules/karma

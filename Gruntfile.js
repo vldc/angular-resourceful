@@ -72,6 +72,7 @@ module.exports = function (grunt) {
                 white: true
             }
         },
+
         watch: {
             options: {
                 livereload: true
@@ -82,13 +83,14 @@ module.exports = function (grunt) {
             ],
             tasks: ['default']
         },
+
         karma: {
             'unit': {
                 configFile: 'karma-unit.conf.js',
                 singleRun: true,
                 autoWatch: false
             },
-            'unit-travis': {
+            'unitTravis': {
                 configFile: 'karma-unit.conf.js',
                 singleRun: true,
                 autoWatch: false,
@@ -110,7 +112,7 @@ module.exports = function (grunt) {
     grunt.registerTask('travis-test', [
         'jshint:beforeConcat',
         'jshint:afterConcat',
-        'karma:unit-travis'
+        'karma:unitTravis'
     ]);
 
     grunt.registerTask('default', ['jshint:beforeConcat', 'concat', 'jshint:afterConcat', 'uglify', 'test']);
