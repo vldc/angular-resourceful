@@ -108,8 +108,8 @@ module.exports = function (grunt) {
     ]);
 
     grunt.registerTask('travis-test', [
-        'jshint:beforeconcat',
-        'jshint:afterconcat',
+        'jshint:beforeConcat',
+        'jshint:afterConcat',
         'karma:unit-travis'
     ]);
 
