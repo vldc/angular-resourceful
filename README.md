@@ -1,6 +1,8 @@
 angular-resourceful
 ===================
 
+[![Build Status](https://travis-ci.org/vldc/angular-resourceful.png?branch=master)](https://travis-ci.org/vldc/angular-resourceful)
+
 Description
 -----------
 Angular Resourceful is a simple wrapper for the [$resource](http://docs.angularjs.org/api/ngResource.$resource). It adds some methods (PUT) which are not included standard $resourceful and allows working with arrays of primitives (fetch and update methods).
